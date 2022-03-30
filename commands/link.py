@@ -128,6 +128,12 @@ def _get_links(update: Update, context: CallbackContext, user: bool=False, url: 
             links = Link.get(Link.url == url)
         else:
             if user:
+                try:
+                    user = User.get(username=update.message.from_user.id)
+                except User.DoesNotExist:
+                    update.message.reply_text(
+                        "ِYou are not registered.\nPlease use /add_user to register and then add links(for help use /add_link).")
+                    return None
                 links = Link.select().where(Link.user == user)
             else:
                 links = Link.select()           
@@ -148,12 +154,8 @@ def list_links(update: Update, context: CallbackContext):
     return: None
     rtype: None
     """
-    try:
-        user = User.get(username=update.message.from_user.id)
-    except User.DoesNotExist:
-        update.message.reply_text(
-            "ِYou are not registered.\nPlease use /add_user to register and then add links(for help use /add_link).")
-    links = _get_links(update, context, user)
+
+    links = _get_links(update, context, user=True)
     if links:
         update.message.reply_text(
             "Your links are:\n%s" % '\n'.join([link.url for link in links]))

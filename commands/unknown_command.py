@@ -12,7 +12,7 @@ def unknown_command(update: Update, context: CallbackContext):
     :return: None
     :rtype: None
     """
-    if "/remove" in update.message.text:
+    if update.message.text and "/remove" in update.message.text:
         remove(update, context, update.message.text.strip().split(" ")[1])
     else:
         update.message.reply_text(

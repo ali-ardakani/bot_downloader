@@ -1,24 +1,10 @@
 import wget
 from telegram.update import Update
-from telegram.user import User
 from telegram.ext.callbackcontext import CallbackContext
-from models import User, Link
 from pathlib import Path
 from config.settings import path_root
 from urllib.error import HTTPError
-
-def get_links():
-    """
-    Get the links from the database.
-    :return: A list of links.
-    :rtype: list of links or None if there are no links.
-    """
-    try:
-        links = Link.select().where(Link.status == 'active')
-    except Link.DoesNotExist:
-        links = None
-
-    return links
+from .link import _get_links
 
 _update = None
 
@@ -55,7 +41,7 @@ def download(update: Update, context: CallbackContext):
     global _update
     global _link
     _update = update
-    links = get_links()
+    links = _get_links(update, context, user=True)
     if links:
         for link in links:
             _link = link
