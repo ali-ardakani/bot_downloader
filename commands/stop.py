@@ -1,7 +1,6 @@
 from email import message
 from telegram.update import Update
 from telegram.ext.callbackcontext import CallbackContext
-from config.settings import updater
 import os
 
 def stop(update: Update, context: CallbackContext):

@@ -1,3 +1,4 @@
+from os import link
 from telegram.update import Update
 from telegram.ext.callbackcontext import CallbackContext
 from models import User, Link
@@ -157,8 +158,10 @@ def list_links(update: Update, context: CallbackContext):
 
     links = _get_links(update, context, user=True)
     if links:
-        update.message.reply_text(
-            "Your links are:\n%s" % '\n'.join([link.url for link in links]))
+        for link in links:
+            update.message.reply_text(
+                f"{link.url} {link.status}")
+
     else:
         update.message.reply_text(
             "You have no links.\nPlease use /add_link to add links(for help use /add_link).")
@@ -179,8 +182,9 @@ def list_errors_links(update: Update, context: CallbackContext):
             "You are not registered.\nPlease use /add_user to register and then add links(for help use /add_link).")
     links = _get_links(update, context, user, status='error')
     if links:
-        update.message.reply_text(
-            "Your links that have errors:\n%s" % '\n'.join([link.url+"\n"+link.error if link.error else link.url for link in links]))
+        for link in links:
+            update.message.reply_text(
+                "Error: %s\n%s" % (link.url, link.error))
     else:
         update.message.reply_text(
             "You have no links that have errors.")

@@ -1,3 +1,4 @@
+from dis import show_code
 import wget
 from telegram.update import Update
 from telegram.ext.callbackcontext import CallbackContext
@@ -5,8 +6,10 @@ from pathlib import Path
 from config.settings import path_root
 from urllib.error import HTTPError
 from .link import _get_links
+import requests
 
 _update = None
+
 
 def bar_adaptive(current, total, width=80):
     """
@@ -25,7 +28,57 @@ def bar_adaptive(current, total, width=80):
     global _update
     output = wget.bar_adaptive(current, total, width=width)
     _update.message.reply_text(output)
+
+
+def _download(url: str, path: str):
+    """
+    Download a file from a url.
+    :param url: The url of the file.
+    :type url: str
+    :param path: The path of the file.
+    :type path: str
+
+    :return: None
+    :rtype: None
+    """
+    get_response = requests.get(url, stream=True, allow_redirects=True)
+    file_name = url.split("/")[-1]
+    if get_response.status_code == 200:
+        with open(f"{path}/{file_name}", 'wb') as f:
     
+            _current_size = 0
+            total_size = get_response.headers.get('content-length')
+            
+            if total_size is None:
+                f.write(get_response.content)
+            else:
+                total_size = int(total_size)
+                if total_size < 1048563 * 10:
+                    step = 24
+                elif total_size < 1048563 * 100:
+                    step = 12
+                elif total_size < 1048563 * 300:
+                    step = 6
+                else:
+                    step = 1
+                show_bar = None
+                for data in get_response.iter_content(chunk_size=4096):
+                    f.write(data)
+                    _current_size += len(data)
+                    done = int(50 * _current_size / total_size)
+                    
+                    # If the download is done or the _current_size divided by step equals to zero,
+                    # then print the progress bar.
+                    if not show_bar or 100 * _current_size // total_size == show_bar:
+                        show_bar = (100 * _current_size // total_size) + step
+                        bar_adaptive(_current_size, total_size, width=100)
+                        
+                    
+                    if done == 100:
+                        break
+    else:
+        raise HTTPError(get_response.status_code)
+
 
 def download(update: Update, context: CallbackContext):
     """
@@ -48,13 +101,13 @@ def download(update: Update, context: CallbackContext):
             path = f'{path_root}/media/{update.message.from_user.id}/'
             Path(path).mkdir(parents=True, exist_ok=True)
             try:
-                wget.download(link.url, out=path, bar=bar_adaptive)
+                _download(link.url, path)
             except HTTPError as e:
                 update.message.reply_text(f'Error: {e}')
                 link.status = 'error'
                 link.error = str(e)
                 link.save()
-            else:    
+            else:
                 link.status = 'completed'
                 link.save()
                 update.message.reply_text(
