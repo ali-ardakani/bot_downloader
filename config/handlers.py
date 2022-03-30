@@ -19,5 +19,6 @@ def handlers(updater: Updater):
     updater.dispatcher.add_handler(CommandHandler('list_errors', cmd.list_errors_links))
     updater.dispatcher.add_handler(CommandHandler('clear', cmd.clear))
     updater.dispatcher.add_handler(CommandHandler('download', cmd.download))
+    updater.dispatcher.add_handler(CommandHandler('stop', cmd.stop))
     updater.dispatcher.add_handler(MessageHandler(Filters.command, cmd.unknown_command))
     updater.dispatcher.add_handler(MessageHandler(Filters.text, cmd.unknown_text))

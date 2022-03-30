@@ -26,4 +26,5 @@ def help(update: Update, context: CallbackContext):
     /clear - Clear all links.
     /restart - Restart the bot.
     /download - Download all links.
+    /stop - Stop the bot.
     """)

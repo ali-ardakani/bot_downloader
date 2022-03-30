@@ -10,3 +10,4 @@ from .restart import restart
 from .unknown_command import unknown_command
 from .unknown_text import unknown_text
 from .download import download
+from .stop import stop

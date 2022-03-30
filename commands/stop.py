@@ -1,11 +1,11 @@
+from email import message
 from telegram.update import Update
 from telegram.ext.callbackcontext import CallbackContext
-import subprocess
+from config.settings import updater
 import os
-import sys
 
-def restart(update: Update, context: CallbackContext):
-    """restart the bot.
+def stop(update: Update, context: CallbackContext):
+    """Stop the bot.
     :param update: The update that contains the message.
     :type update: telegram.update.Update
     :param context: The context of the command.
@@ -14,7 +14,5 @@ def restart(update: Update, context: CallbackContext):
     :return: None
     :rtype: None
     """
-    update.message.reply_text(
-        "restarting bot.")
-    
-    os.execv(sys.executable, ['python'] + sys.argv)
+    update.message.reply_text("Stopping bot.")
+    os._exit(0)

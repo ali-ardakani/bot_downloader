@@ -41,7 +41,7 @@ def download(update: Update, context: CallbackContext):
     global _update
     global _link
     _update = update
-    links = _get_links(update, context, user=True)
+    links = _get_links(update, context, user=True, status="active")
     if links:
         for link in links:
             _link = link
